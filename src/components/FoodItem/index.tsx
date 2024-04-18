@@ -11,12 +11,12 @@ interface IFoodItemProps {
 }
 
 const FoodItem = ({ item }: IFoodItemProps) => {
-  const { cartItems, addToCart, removeFromCart } = useContext(StoreContext)
+  const { cartItems, addToCart, removeFromCart, url } = useContext(StoreContext)
 
   return (
     <div className="food-item">
       <div className="food-item-img-container">
-        <img className="food-item-image" src={item.image} alt={item.name} />
+        <img className="food-item-image" src={url + "/images/" + item.image} alt={item.name} />
         {!cartItems[item._id]
           ? <img className='add' onClick={() => addToCart(item._id)} src={assets.add_icon_white} alt="" />
           : <div className="food-item-counter">

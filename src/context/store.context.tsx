@@ -1,8 +1,9 @@
-import { ReactNode, createContext, useState } from "react";
-import { food_list } from "@/assets/assets"
+import { ReactNode, createContext, useEffect, useState } from "react";
 import FoodList from "@/interfaces/FoodList"
 import ICartItem from "@/interfaces/CartItem";
 import { SetState } from "@/types";
+import IFoodList from "@/interfaces/FoodList";
+import axios from "axios";
 
 interface IContextValue {
   food_list: FoodList[];
@@ -11,6 +12,9 @@ interface IContextValue {
   addToCart: (itemId: string) => void;
   removeFromCart: (itemId: string) => void;
   getTotalCartAmount: () => number;
+  url: string;
+  token: string;
+  setToken: SetState<string>;
 }
 
 export const StoreContext = createContext<IContextValue>({} as IContextValue);
@@ -19,10 +23,14 @@ interface IStoreContextProvider {
   children: ReactNode
 }
 
+const url = import.meta.env.VITE_URL;
+
 const StoreContextProvider = ({ children }: IStoreContextProvider) => {
 
 
   const [cartItems, setCartItems] = useState<ICartItem>({});
+  const [token, setToken] = useState<string>("");
+  const [food_list, setFoodList] = useState<IFoodList[]>([] as IFoodList[]);
 
   const addToCart = (itemId: string) => {
     setCartItems((prev) => {
@@ -48,13 +56,33 @@ const StoreContextProvider = ({ children }: IStoreContextProvider) => {
     return totalAmount;
   }
 
+  const fetchFoodList = async () => {
+    const response = await axios.get(url+'/api/food/list');
+    setFoodList(response.data.data);
+  }
+
+  useEffect(() => {
+    async function loadData() {
+      await fetchFoodList();
+      const tokenFromStorage = localStorage.getItem("authToken");
+      if (tokenFromStorage) {
+        setToken(tokenFromStorage);
+      }
+    }
+
+    loadData();
+  }, []);
+
   const contextValue: IContextValue = {
     food_list,
     cartItems,
     setCartItems,
     addToCart,
     removeFromCart,
-    getTotalCartAmount
+    getTotalCartAmount,
+    url,
+    token,
+    setToken
   };
 
   return (
