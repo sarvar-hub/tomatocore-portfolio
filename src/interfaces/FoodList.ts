@@ -6,6 +6,7 @@ interface IFoodList {
   description: string;
   image: string;
   category: string;
+  quantity?: number;
 }
 
 export default IFoodList;
